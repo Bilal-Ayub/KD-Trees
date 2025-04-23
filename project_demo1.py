@@ -29,28 +29,29 @@ import math
 NumPy arrays that contains the x,y,z coords of the shape we are rendering"""
 
 def vector(x,y,z):
-    """Creates a vector as a NumPy array"""
-    return np.array([x,y,z], type= float)
+    """Creates a vector as a tuple"""
+    return (x,y,z)
 
 def vector_subtraction(v1,v2):
     """returns 2 vector's subtraction"""
-    return v1 - v2
+    return (v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2])
 
 def vector_addition(v1,v2):
     """returns 2 vector's addition"""
-    return v1+v2
+    return (v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2])
 
 def dot_product(v1,v2):
     """Returns dot product of 2 vectors"""
-    return np.dot(v1,v2) #imported library operations
+    return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2]
 
 def length_of_vector(v):
     """returns magnitude of a vector"""
-    return np.sqrt(dot_product(v,v))
+    return math.sqrt(dot_product(v,v))
 
 def normalize(v):
     """returns vector after converting it to its unit vector"""
-    return v / length_of_vector(v)
+    mag = length_of_vector(v)
+    return (v[0]/mag, v[1]/mag, v[2]/mag)
 
 
 class Ray: #class for Ray: uses origin (vector) and direction Vec
@@ -125,20 +126,20 @@ def build_kd_tree(objects, depth=0):
     )
 
 # Traverse the kd-tree to find intersections
-def intersect_kd_tree(ray, node): #find the smallest intersection
-    if node is None:
+def intersect_kd_tree(ray, tree): #find the smallest intersection
+    if tree is None:
         return None
 
-    # Check intersection with the current node's objects
+    # Check intersection with the current tree's objects
     hit = None
-    for obj in node.objects:
+    for obj in tree.objects:
         t = obj.intersect(ray)
         if t is not None and (hit is None or t < hit):
             hit = t
 
     # Traverse the left and right subtrees
-    hit_left = intersect_kd_tree(ray, node.left)
-    hit_right = intersect_kd_tree(ray, node.right)
+    hit_left = intersect_kd_tree(ray, tree.left)
+    hit_right = intersect_kd_tree(ray, tree.right)
 
     # Find the closest hit
     if hit_left is not None and (hit is None or hit_left < hit):
